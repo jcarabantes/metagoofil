@@ -30,13 +30,17 @@ def usage():
     print "         -l: limit of results to search (default 200)"
     print "         -h: work with documents in directory (use \"yes\" for local analysis)"
     print "         -n: limit of files to download"
-    print "         -o: working directory (location to save downloaded files)"
-    print "         -f: output file\n"
+    print "         -o: working directory (location to save downloaded files or local analysis)"
+    print "         -f: output html report"
+    print "         -v: verbose on. Default 0. (use to enable it)\n"
     print " Examples:"
     print "  metagoofil.py -d apple.com -t doc,pdf -l 200 -n 50 -o applefiles -f results.html"
     print "  metagoofil.py -h yes -o applefiles -f results.html (local dir analysis)\n"
     sys.exit()
 
+def debug(msg,verbose=0):
+    if verbose == 1:
+        print("{0}".format(msg))
 
 global limit, start, password, all, localanalysis, dir, failedfiles
 limit = 100
@@ -44,6 +48,7 @@ start = 0
 password = ""
 all = []
 dir = "test"
+verbose = 0
 def doprocess(argv):
     filelimit = 50
     word = "local"
@@ -53,7 +58,7 @@ def doprocess(argv):
     if len(sys.argv) < 3:
         usage()
     try:
-        opts, args = getopt.getopt(argv, "l:d:f:h:n:t:o:")
+        opts, args = getopt.getopt(argv, "l:d:f:h:n:t:o:v:")
     except getopt.GetoptError:
         usage()
     for opt, arg in opts:
@@ -70,6 +75,8 @@ def doprocess(argv):
             limit = int(arg)
         elif opt == '-h':
             localanalysis = arg
+        elif opt == '-v':
+            verbose = int(1)
         elif opt == '-n':
             filelimit = int(arg)
         elif opt == '-o':
@@ -133,14 +140,17 @@ def doprocess(argv):
     else:
         print "[-] Starting local analysis in directory " + dir
         dirList = os.listdir(dir)
-        print dirList
+        counter = 1
+        files_to_process = len(dirList)
+        #print dirList
         for filename in dirList:
+            debug("[{0}/{1}] processing file {2}".format(counter, files_to_process, filename), True)
             if filename != "":
                 filetype = str(filename.split(".")[-1])
                 if filetype == "pdf":
                     test = metadataPDF.metapdf(dir + "/" + filename, password)
                 elif filetype == "doc" or filetype == "ppt" or filetype == "xls":
-                    print "doc"
+                    #print "doc"
                     test = metadataMSOffice.metaMs2k(dir + "/" + filename)
                     if os.name == "posix":
                         testex = metadataExtractor.metaExtractor(dir + "/" + filename)
@@ -172,9 +182,11 @@ def doprocess(argv):
                         else:
                             failedfiles(filename + ":" + str(res))
                     else:
-                        print "pass"
+                        # not a docx or pdf - no email - xlsx?
+                        pass
             else:
-                pass
+                print("[-] Empty filename?")
+            counter += 1
     print "processing"
     proc = processor.processor(all)
     userlist = proc.sort_users()
@@ -212,5 +224,6 @@ if __name__ == "__main__":
     	doprocess(sys.argv[1:])
     except KeyboardInterrupt:
         print "Process interrupted by user."
-    except:
+    except Exception as e:
+        print(e)
         sys.exit()
