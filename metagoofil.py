@@ -152,6 +152,7 @@ def doprocess(argv):
                     users = test.getUsers()
                     paths = test.getPaths()
                     soft = test.getSoftware()
+                    email = None
                     if (filetype == "doc" or filetype == "xls" or filetype == "ppt") and os.name=="posix":
                         testex.runExtract()
                         testex.getData()
