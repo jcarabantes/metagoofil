@@ -155,7 +155,10 @@ def doprocess(argv):
                     if os.name == "posix":
                         testex = metadataExtractor.metaExtractor(dir + "/" + filename)
                 elif filetype == "docx" or filetype == "pptx" or filetype == "xlsx":
-                    test = metadataMSOfficeXML.metaInfoMS(dir + "/" + filename)
+                    try:
+                        test = metadataMSOfficeXML.metaInfoMS(dir + "/" + filename)
+                    except Exception as e:
+                        print(e)
                 res = test.getData()
                 if res == "ok":
                     raw = test.getRaw()
@@ -183,6 +186,7 @@ def doprocess(argv):
                             failedfiles(filename + ":" + str(res))
                     else:
                         # not a docx or pdf - no email - xlsx?
+                        print("In else")
                         pass
             else:
                 print("[-] Empty filename?")
