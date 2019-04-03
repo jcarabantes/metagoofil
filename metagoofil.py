@@ -140,10 +140,12 @@ def doprocess(argv):
     else:
         print "[-] Starting local analysis in directory " + dir
         dirList = os.listdir(dir)
-        counter = 1
+        counter = 0
         files_to_process = len(dirList)
+        test = None
         #print dirList
         for filename in dirList:
+            counter += 1
             debug("[{0}/{1}] processing file {2}".format(counter, files_to_process, filename), True)
             if filename != "":
                 filetype = str(filename.split(".")[-1])
@@ -159,6 +161,9 @@ def doprocess(argv):
                         test = metadataMSOfficeXML.metaInfoMS(dir + "/" + filename)
                     except Exception as e:
                         print(e)
+                else:
+                    print("[-] Unexpected extension: {0}".format(filetype))
+                    continue
                 res = test.getData()
                 if res == "ok":
                     raw = test.getRaw()
@@ -190,7 +195,7 @@ def doprocess(argv):
                         pass
             else:
                 print("[-] Empty filename?")
-            counter += 1
+            
     print "processing"
     proc = processor.processor(all)
     userlist = proc.sort_users()
