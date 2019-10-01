@@ -160,7 +160,9 @@ def doprocess(argv):
                     try:
                         test = metadataMSOfficeXML.metaInfoMS(dir + "/" + filename)
                     except Exception as e:
+                        print("[-] Exception while checking docx,pptx or xlsx")
                         print(e)
+                        continue
                 else:
                     print("[-] Unexpected extension: {0}".format(filetype))
                     continue
